@@ -52,28 +52,25 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     }
   }
 
-  async function mergeSort(array: number[]): Promise<any> {
-    if (array.length < 2) {
-      return array;
-    }
+  async function insertionSort(): Promise<any> {
+    const array = [...arr];
 
-    const mid = Math.floor(array.length / 2);
-    const left = await mergeSort(array.slice(0, mid));
-    const right = await mergeSort(array.slice(mid, array.length));
+    for (let i = 1; i < array.length; i++) {
+      let currentValue = array[i];
+      let j;
 
-    let result = [];
-    while (left.length && right.length) {
-      if (left[0] < right[0]) {
-        result.push(left.shift());
-      } else {
-        result.push(right.shift());
+      for (j = i - 1; j >= 0 && array[j] > currentValue; j--) {
+        array[j + 1] = array[j];
+        setCurBar(j);
+
+        await new Promise((resolve) => setTimeout(resolve, 25));
+
+        playNote(200 + array[i] * 500);
+        playNote(200 + array[j] * 500);
       }
+      array[j + 1] = currentValue;
+      setArr([...array]);
     }
-
-    await new Promise((resolve) => setTimeout(resolve, 25));
-    setArr(result.concat(left, right));
-
-    return result.concat(left, right);
   }
 
   async function playEndAnimation() {
@@ -101,10 +98,8 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
 
     if (algorithm === "bubble") {
       await bubbleSort();
-    } else if (algorithm === "merge") {
-      let array = [...arr];
-      array = await mergeSort(array);
-      setArr(array);
+    } else if (algorithm === "insertion") {
+      await insertionSort();
     }
   }
 
