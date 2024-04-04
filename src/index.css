@@ -1,5 +1,8 @@
+body {
+  text-align: center;
+}
+
 .bar {
-  border: solid 1px black;
   width: 0.2rem;
   font-size: xx-small;
 }
@@ -9,11 +12,15 @@
 }
 
 .cursor {
-  background-color: darkblue;
+  background-color: red;
 }
 
 .arrContainer {
+  gap: 0.5px;
+  height: 70vh;
   display: flex;
   flex-direction: row;
-  gap: 0.2rem;
+  align-items: flex-end;
+  max-width: 80%;
+  margin: 0 auto;
 }
