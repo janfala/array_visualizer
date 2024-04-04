@@ -13,7 +13,7 @@ const UserInput = ({ handleSizing }: userProps) => {
         <select name="algorithm">
           <option value="bubble">Bubble Sort</option>
           <option value="insertion">Insertion Sort</option>
-          <option value="quick">Quick Sort</option>
+          <option value="selection">Selection Sort</option>
         </select>
         <button>Confirm Settings</button>
       </form>

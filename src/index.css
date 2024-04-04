@@ -3,7 +3,7 @@ body {
 }
 
 .bar {
-  width: 0.2rem;
+  width: 1rem;
   font-size: xx-small;
 }
 
@@ -16,7 +16,7 @@ body {
 }
 
 .arrContainer {
-  gap: 0.5px;
+  gap: 2px;
   height: 70vh;
   display: flex;
   flex-direction: row;
