@@ -8,7 +8,7 @@ type ArrayProps = {
 const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   const [arr, setArr] = useState<number[]>([]);
   const [curBar, setCurBar] = useState<number>(); // index of cursor
-  const [comparing, setComparing] = useState<number>();
+  const [comparing, setComparing] = useState<number>(); // to visualize what the algorithm is comparing
 
   const [sortedPart, setSortedPart] = useState<Set<number>>(new Set());
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -18,7 +18,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   useEffect(() => {
     resetSortedPart();
     setArr(genRandomValues(size));
-    resetCurBar();
+    resetCursors();
   }, [size]);
 
   function genRandomValues(size: number): number[] {
@@ -101,11 +101,12 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   async function playEndAnimation() {
     const sortedArr = [...arr];
     const sortedIdxs = new Set(sortedPart);
-    setComparing(-1);
+
+    setComparing(-1); // reset comparing
 
     for (let i = sortedArr.length - 1; i >= 0; i--) {
-      playNote(200 + sortedArr[i] * 500);
-      await new Promise((resolve) => setTimeout(resolve, 25));
+      await delayAndNotes(sortedArr[i], sortedArr[i], 25);
+
       sortedIdxs.add(i);
       setCurBar(i);
       setSortedPart(sortedIdxs);
@@ -144,10 +145,10 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   function handleNewArray() {
     resetSortedPart();
     setArr(genRandomValues(size));
-    resetCurBar();
+    resetCursors();
   }
 
-  function resetCurBar() {
+  function resetCursors() {
     setCurBar(-1); // will never show
     setComparing(-1);
   }
