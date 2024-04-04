@@ -12,7 +12,9 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
 
   const [sortedPart, setSortedPart] = useState<Set<number>>(new Set());
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [isAudio, setIsAudio] = useState<boolean>(false);
 
+  const delay = 10;
   let audioCtx: any = null; // for sound
 
   useEffect(() => {
@@ -37,7 +39,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
 
     for (let i = 0; i < array.length; i++) {
       for (let j = 0; j < array.length - 1 - i; j++) {
-        await delayAndNotes(arr[i], arr[j], 25);
+        await delayAndNotes(arr[i], arr[j]);
 
         setCurBar(j);
         setComparing(j + 1);
@@ -60,7 +62,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
       let j;
 
       for (j = i - 1; j >= 0 && array[j] > currentValue; j--) {
-        await delayAndNotes(array[i], array[j], 25);
+        await delayAndNotes(array[i], array[j]);
 
         array[j + 1] = array[j];
 
@@ -80,7 +82,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
       let lowest = i;
 
       for (let j = i + 1; j < array.length; j++) {
-        await delayAndNotes(array[i], array[j], 25);
+        await delayAndNotes(array[i], array[j]);
 
         setCurBar(j);
 
@@ -105,7 +107,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     setComparing(-1); // reset comparing
 
     for (let i = sortedArr.length - 1; i >= 0; i--) {
-      await delayAndNotes(sortedArr[i], sortedArr[i], 25);
+      await delayAndNotes(sortedArr[i], sortedArr[i]);
 
       sortedIdxs.add(i);
       setCurBar(i);
@@ -135,11 +137,13 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     playEndAnimation();
   }
 
-  async function delayAndNotes(firstVal: number, secondVal: number, timeAmount: number) {
-    await new Promise((resolve) => setTimeout(resolve, timeAmount));
+  async function delayAndNotes(firstVal: number, secondVal: number) {
+    await new Promise((resolve) => setTimeout(resolve, delay));
 
-    playNote(200 + firstVal * 500);
+    if (!isAudio) return;
+
     playNote(200 + secondVal * 500);
+    playNote(200 + firstVal * 500);
   }
 
   function handleNewArray() {
@@ -163,7 +167,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
       audioCtx = new (AudioContext || webkitAudioContext || window.webkitAudioContext)();
     }
 
-    const dur = 0.1;
+    const dur = 0.3;
     const osc = audioCtx.createOscillator();
     osc.frequency.value = freq;
     osc.start();
@@ -175,12 +179,20 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     node.connect(audioCtx.destination);
   }
 
+  function handleSound() {
+    isAudio ? setIsAudio(false) : setIsAudio(true);
+  }
+
   return (
     <>
       {isRunning ? (
         <>
           <button disabled>Start Sorting!</button>
           <button disabled>Generate new Array</button>
+          <label className="switch">
+            <input type="checkbox" className="soundToggle" disabled />
+            <span>Sound</span>
+          </label>
         </>
       ) : (
         <>
@@ -190,6 +202,10 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
             </button>
           )}
           {size !== 0 && <button onClick={() => handleNewArray()}>Generate new Array</button>}
+          <label className="switch">
+            <input type="checkbox" className="soundToggle" onChange={handleSound} />
+            <span>Sound</span>
+          </label>
         </>
       )}
       <div className="arrContainer">
