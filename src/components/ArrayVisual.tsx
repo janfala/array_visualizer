@@ -7,7 +7,7 @@ type ArrayProps = {
 
 const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   const [arr, setArr] = useState<number[]>([]);
-  const [curBar, setCurBar] = useState<number>(); // index of cursor
+  const [curBar, setCurBar] = useState<number | Set<number>>(); // index of cursor
   const [comparing, setComparing] = useState<number>(); // to visualize what the algorithm is comparing
 
   const [sortedPart, setSortedPart] = useState<Set<number>>(new Set());
@@ -94,9 +94,72 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
         setArr([...array]);
       }
       if (lowest !== i) {
-        // Swap
-        [array[i], array[lowest]] = [array[lowest], array[i]];
+        const tmp = array[i];
+        array[i] = array[lowest];
+        array[lowest] = tmp;
       }
+    }
+  }
+
+  // was really struggling to figure out how to animate the indicies with recursion merge sort, so I stole from here:
+  // https://github.com/clementmihailescu/Sorting-Visualizer-Tutorial/blob/master/src/sortingAlgorithms/sortingAlgorithms.js.
+  async function mergeSort() {
+    let array = [...arr];
+
+    if (array.length <= 1) {
+      setArr(array);
+    }
+
+    const auxiliaryArray = array.slice();
+    await mergeSortHelper(array, 0, array.length - 1, auxiliaryArray);
+  }
+
+  async function mergeSortHelper(
+    mainArray: Array<number>,
+    startIdx: number,
+    endIdx: number,
+    auxiliaryArray: Array<number>
+  ) {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    if (startIdx === endIdx) {
+      return;
+    }
+
+    const middleIdx = Math.floor((startIdx + endIdx) / 2);
+    await mergeSortHelper(auxiliaryArray, startIdx, middleIdx, mainArray);
+    await mergeSortHelper(auxiliaryArray, middleIdx + 1, endIdx, mainArray);
+    await doMerge(mainArray, startIdx, middleIdx, endIdx, auxiliaryArray);
+
+    setArr([...mainArray]);
+  }
+
+  async function doMerge(
+    mainArray: Array<number>,
+    startIdx: number,
+    middleIdx: number,
+    endIdx: number,
+    auxiliaryArray: Array<number>
+  ) {
+    let k = startIdx;
+    let i = startIdx;
+    let j = middleIdx + 1;
+
+    while (i <= middleIdx && j <= endIdx) {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      if (auxiliaryArray[i] <= auxiliaryArray[j]) {
+        mainArray[k++] = auxiliaryArray[i++];
+      } else {
+        mainArray[k++] = auxiliaryArray[j++];
+      }
+      setCurBar(k);
+    }
+    while (i <= middleIdx) {
+      mainArray[k++] = auxiliaryArray[i++];
+      setCurBar(k);
+    }
+    while (j <= endIdx) {
+      mainArray[k++] = auxiliaryArray[j++];
+      setCurBar(k);
     }
   }
 
@@ -132,6 +195,8 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
       await insertionSort();
     } else if (algorithm === "selection") {
       await selectionSort();
+    } else if (algorithm === "merge") {
+      await mergeSort();
     }
 
     playEndAnimation();
@@ -213,7 +278,15 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
           arr.map((val, idx) => (
             <div
               key={idx}
-              className={idx === curBar ? "bar cursor" : "bar normal"}
+              className={
+                typeof curBar === "number"
+                  ? idx === curBar
+                    ? "bar cursor"
+                    : "bar normal"
+                  : curBar?.has(idx)
+                  ? "bar cursor"
+                  : "bar normal"
+              }
               style={
                 sortedPart.has(idx)
                   ? { height: `${val * 100}%`, backgroundColor: "green" }

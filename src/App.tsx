@@ -11,11 +11,6 @@ function App() {
     let inputSize: number = Number(e.target.elements["size"].value);
     let inputAlgo: string = e.target.elements["algorithm"].value;
 
-    if (inputSize > 500) {
-      alert("Please don't enter a size greater than 300");
-      return;
-    }
-
     setSize(inputSize);
     setAlgorithm(inputAlgo);
   }
