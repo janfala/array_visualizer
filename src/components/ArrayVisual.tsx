@@ -168,6 +168,59 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     }
   }
 
+  async function quickSort(): Promise<void> {
+    let array = [...arr];
+    array.slice(0);
+
+    await quickSortHelper(array, 0, array.length - 1);
+  }
+
+  async function quickSortHelper(array: number[], start: number, end: number) {
+    if (start >= end) {
+      return;
+    }
+    let pivot = start,
+      left = start + 1,
+      right = end;
+
+    delayAndNotes([array[left], array[right]]);
+    changeComparingSet(left, right);
+    setCurBar(pivot);
+
+    while (right >= left) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
+      if (array[right] < array[pivot] && array[left] > array[pivot]) {
+        let temp = array[right];
+        array[right] = array[left];
+        array[left] = temp;
+      }
+      if (array[right] >= array[pivot]) {
+        right--;
+      }
+      if (array[left] <= array[pivot]) {
+        left++;
+      }
+
+      setCurBar(pivot);
+      changeComparingSet(left, right); // i mean you are comparing to the pivot value i guess
+
+      delayAndNotes([array[left], array[right]]);
+      setArr([...array]);
+    }
+
+    if (pivot !== right) {
+      let temp = array[right];
+      array[right] = array[pivot];
+      array[pivot] = temp;
+
+      setArr([...array]);
+      delayAndNotes([array[pivot], array[right]]);
+    }
+    await quickSortHelper(array, start, right - 1);
+    await quickSortHelper(array, right + 1, end);
+  }
+
   async function changeComparingSet(idx1: number, idx2: number) {
     setComparing(-1);
 
@@ -209,15 +262,21 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
 
     setIsRunning(true);
 
-    // might change to switch later
-    if (algorithm === "bubble") {
-      await bubbleSort();
-    } else if (algorithm === "insertion") {
-      await insertionSort();
-    } else if (algorithm === "selection") {
-      await selectionSort();
-    } else if (algorithm === "merge") {
-      await mergeSort();
+    switch (algorithm) {
+      case "quick":
+        await quickSort();
+        break;
+      case "insertion":
+        await insertionSort();
+        break;
+      case "selection":
+        await selectionSort();
+        break;
+      case "merge":
+        await mergeSort();
+        break;
+      default:
+        throw new Error(`Unknown algorithm: ${algorithm}`);
     }
 
     await playEndAnimation();

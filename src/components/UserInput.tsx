@@ -15,6 +15,7 @@ const UserInput = ({ handleSizing }: userProps) => {
           <option value="insertion">Insertion Sort</option>
           <option value="selection">Selection Sort</option>
           <option value="merge">Merge Sort</option>
+          <option value="quick">Quick Sort</option>
         </select>
         <button>Confirm Settings</button>
       </form>
