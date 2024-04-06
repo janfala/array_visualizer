@@ -7,14 +7,14 @@ type ArrayProps = {
 
 const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   const [arr, setArr] = useState<number[]>([]);
-  const [curBar, setCurBar] = useState<number | Set<number>>(); // index of cursor
-  const [comparing, setComparing] = useState<number>(); // to visualize what the algorithm is comparing
+  const [curBar, setCurBar] = useState<number>(); // index of cursor
+  const [comparing, setComparing] = useState<number | Set<number>>(); // to visualize further parts (e.g.: ranges of subarray in merge sort)
 
   const [sortedPart, setSortedPart] = useState<Set<number>>(new Set());
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [isAudio, setIsAudio] = useState<boolean>(false);
 
-  const delay = 10;
+  const delay = 25;
   let audioCtx: any = null; // for sound
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
         array[j + 1] = array[j];
 
         setComparing(j);
-        setCurBar(j + 1);
+        setCurBar(i);
       }
 
       array[j + 1] = currentValue;
@@ -101,13 +101,13 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     }
   }
 
-  // was really struggling to figure out how to animate the indicies with recursion merge sort, so I stole from here:
+  // was really struggling to figure out how to animate the indicies with merge sort, because of the recursion, so I stole an algo with helper method from here:
   // https://github.com/clementmihailescu/Sorting-Visualizer-Tutorial/blob/master/src/sortingAlgorithms/sortingAlgorithms.js.
   async function mergeSort() {
     let array = [...arr];
 
     if (array.length <= 1) {
-      setArr(array);
+      return;
     }
 
     const auxiliaryArray = array.slice();
@@ -120,7 +120,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     endIdx: number,
     auxiliaryArray: Array<number>
   ) {
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, delay));
     if (startIdx === endIdx) {
       return;
     }
@@ -129,8 +129,6 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     await mergeSortHelper(auxiliaryArray, startIdx, middleIdx, mainArray);
     await mergeSortHelper(auxiliaryArray, middleIdx + 1, endIdx, mainArray);
     await doMerge(mainArray, startIdx, middleIdx, endIdx, auxiliaryArray);
-
-    setArr([...mainArray]);
   }
 
   async function doMerge(
@@ -145,22 +143,41 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     let j = middleIdx + 1;
 
     while (i <= middleIdx && j <= endIdx) {
-      await new Promise((resolve) => setTimeout(resolve, 30));
+      await new Promise((resolve) => setTimeout(resolve, delay));
       if (auxiliaryArray[i] <= auxiliaryArray[j]) {
+        insertValueAtIndex(auxiliaryArray[i], k);
         mainArray[k++] = auxiliaryArray[i++];
       } else {
+        insertValueAtIndex(auxiliaryArray[j], k);
         mainArray[k++] = auxiliaryArray[j++];
       }
       setCurBar(k);
+      changeComparingSet(startIdx, endIdx);
     }
     while (i <= middleIdx) {
+      insertValueAtIndex(auxiliaryArray[i], k);
       mainArray[k++] = auxiliaryArray[i++];
-      setCurBar(k);
     }
     while (j <= endIdx) {
+      insertValueAtIndex(auxiliaryArray[j], k);
       mainArray[k++] = auxiliaryArray[j++];
-      setCurBar(k);
     }
+  }
+
+  async function changeComparingSet(idx1: number, idx2: number) {
+    setComparing(-1);
+
+    let bars = new Set<number>();
+    bars.add(idx1);
+    bars.add(idx2);
+    setComparing(bars);
+  }
+
+  async function insertValueAtIndex(value: number, idx: number) {
+    const array = arr;
+    array[idx] = value;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    setArr([...array]);
   }
 
   async function playEndAnimation() {
@@ -199,7 +216,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
       await mergeSort();
     }
 
-    playEndAnimation();
+    await playEndAnimation();
   }
 
   async function delayAndNotes(firstVal: number, secondVal: number) {
@@ -278,19 +295,15 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
           arr.map((val, idx) => (
             <div
               key={idx}
-              className={
-                typeof curBar === "number"
-                  ? idx === curBar
-                    ? "bar cursor"
-                    : "bar normal"
-                  : curBar?.has(idx)
-                  ? "bar cursor"
-                  : "bar normal"
-              }
+              className={idx === curBar ? "bar cursor" : "bar normal"}
               style={
                 sortedPart.has(idx)
                   ? { height: `${val * 100}%`, backgroundColor: "green" }
-                  : idx === comparing // I am so sorry this is so ugly
+                  : typeof comparing === "number"
+                  ? idx === comparing // I am so sorry this is so ugly
+                    ? { height: `${val * 100}%`, backgroundColor: "greenyellow" }
+                    : { height: `${val * 100}%` }
+                  : comparing?.has(idx)
                   ? { height: `${val * 100}%`, backgroundColor: "greenyellow" }
                   : { height: `${val * 100}%` }
               }

@@ -10,7 +10,7 @@ const UserInput = ({ handleSizing }: userProps) => {
       <h3>Input array size</h3>
       <form onSubmit={handleSizing}>
         <input type="number" name="size" placeholder="150" required />
-        <select name="algorithm">
+        <select name="algorithm" defaultValue={"merge"}>
           <option value="bubble">Bubble Sort</option>
           <option value="insertion">Insertion Sort</option>
           <option value="selection">Selection Sort</option>
