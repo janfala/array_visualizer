@@ -39,7 +39,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
 
     for (let i = 0; i < array.length; i++) {
       for (let j = 0; j < array.length - 1 - i; j++) {
-        await delayAndNotes(arr[i], arr[j]);
+        await delayAndNotes([arr[i], arr[j]]);
 
         setCurBar(j);
         setComparing(j + 1);
@@ -62,7 +62,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
       let j;
 
       for (j = i - 1; j >= 0 && array[j] > currentValue; j--) {
-        await delayAndNotes(array[i], array[j]);
+        await delayAndNotes([array[i], array[j]]);
 
         array[j + 1] = array[j];
 
@@ -82,7 +82,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
       let lowest = i;
 
       for (let j = i + 1; j < array.length; j++) {
-        await delayAndNotes(array[i], array[j]);
+        await delayAndNotes([array[i], array[j]]);
 
         setCurBar(j);
 
@@ -151,16 +151,20 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
         insertValueAtIndex(auxiliaryArray[j], k);
         mainArray[k++] = auxiliaryArray[j++];
       }
-      setCurBar(k);
+
       changeComparingSet(startIdx, endIdx);
+      setCurBar(k);
+      delayAndNotes([auxiliaryArray[i], auxiliaryArray[j]]).catch((rej) => console.log(rej));
     }
     while (i <= middleIdx) {
-      insertValueAtIndex(auxiliaryArray[i], k);
-      mainArray[k++] = auxiliaryArray[i++];
+      mainArray[k] = auxiliaryArray[i];
+      insertValueAtIndex(auxiliaryArray[i++], k);
+      setCurBar(k++);
     }
     while (j <= endIdx) {
-      insertValueAtIndex(auxiliaryArray[j], k);
-      mainArray[k++] = auxiliaryArray[j++];
+      mainArray[k] = auxiliaryArray[j];
+      insertValueAtIndex(auxiliaryArray[j++], k);
+      setCurBar(k++);
     }
   }
 
@@ -187,7 +191,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     setComparing(-1); // reset comparing
 
     for (let i = sortedArr.length - 1; i >= 0; i--) {
-      await delayAndNotes(sortedArr[i], sortedArr[i]);
+      await delayAndNotes([sortedArr[i]]);
 
       sortedIdxs.add(i);
       setCurBar(i);
@@ -219,13 +223,14 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     await playEndAnimation();
   }
 
-  async function delayAndNotes(firstVal: number, secondVal: number) {
+  async function delayAndNotes(vals: number[]) {
     await new Promise((resolve) => setTimeout(resolve, delay));
 
     if (!isAudio) return;
 
-    playNote(200 + secondVal * 500);
-    playNote(200 + firstVal * 500);
+    for (let i = 0; i < vals.length; i++) {
+      playNote(200 + vals[i] * 500);
+    }
   }
 
   function handleNewArray() {

@@ -11,6 +11,11 @@ function App() {
     let inputSize: number = Number(e.target.elements["size"].value);
     let inputAlgo: string = e.target.elements["algorithm"].value;
 
+    if (inputSize > 300) {
+      alert("Max size is 300");
+      return;
+    }
+
     setSize(inputSize);
     setAlgorithm(inputAlgo);
   }
