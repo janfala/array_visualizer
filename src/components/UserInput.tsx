@@ -1,23 +1,22 @@
 import { FormEventHandler } from "react";
 
 type userProps = {
-  handleSizing: FormEventHandler;
+  handleInputs: FormEventHandler;
 };
 
-const UserInput = ({ handleSizing }: userProps) => {
+const UserInput = ({ handleInputs }: userProps) => {
   return (
     <div>
       <h3>Input array size</h3>
-      <form onSubmit={handleSizing}>
-        <input type="number" name="size" placeholder="150" required />
-        <select name="algorithm" defaultValue={"bubble"}>
+      <form onSubmit={(event) => handleInputs(event)}>
+        <input type="number" name="size" placeholder="150" required onChange={(event) => handleInputs(event)} />
+        <select name="algorithm" defaultValue={"bubble"} onChange={(event) => handleInputs(event)}>
           <option value="bubble">Bubble Sort</option>
           <option value="insertion">Insertion Sort</option>
           <option value="selection">Selection Sort</option>
           <option value="merge">Merge Sort</option>
           <option value="quick">Quick Sort</option>
         </select>
-        <button>Confirm Settings</button>
       </form>
     </div>
   );
