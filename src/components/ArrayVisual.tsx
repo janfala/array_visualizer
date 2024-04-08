@@ -5,7 +5,7 @@ type ArrayProps = {
   algorithm: string;
 };
 
-// TODO split up into 2 components
+// On my next project I should think about the differnt components before starting to code, so files like this one don't happen
 const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   const [arr, setArr] = useState<number[]>([]);
 
@@ -16,7 +16,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [isAudio, setIsAudio] = useState<boolean>(true);
 
-  const SORTING_DELAY = 25; // TODO this should be dependend on arr size -> larger array -> shorter delay
+  const SORTING_DELAY = 25; // TODO maybe this should be dependend on arr size -> larger array -> shorter delay
   const AUDIO_DURATION = 0.15;
 
   let audioCtx: any = null; // for sound
@@ -167,7 +167,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     await quickSortHelper(arr, 0, arr.length - 1);
   }
 
-  async function quickSortHelper(array: number[], start: number, end: number) {
+  async function quickSortHelper(array: number[], start: number, end: number): Promise<void> {
     if (start >= end) {
       return;
     }
@@ -357,10 +357,12 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
             </button>
           )}
           {size !== 0 && <button onClick={handleNewArray}>Generate new Array</button>}
-          <label className="switch">
-            <input type="checkbox" className="soundToggle" onChange={handleSound} defaultChecked />
-            <span>Sound</span>
-          </label>
+          {size !== 0 && (
+            <label className="switch">
+              <input type="checkbox" className="soundToggle" onChange={handleSound} defaultChecked />
+              <span>Sound</span>
+            </label>
+          )}
         </>
       )}
       <div className="arrContainer">
