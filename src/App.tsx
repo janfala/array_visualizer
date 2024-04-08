@@ -1,5 +1,5 @@
+import ArraySection from "./components/ArraySection";
 import UserInput from "./components/UserInput";
-import ArrayVisual from "./components/ArrayVisual";
 import { useState } from "react";
 
 function App() {
@@ -42,7 +42,7 @@ function App() {
   return (
     <>
       <UserInput handleInputs={handleInputs} />
-      <ArrayVisual size={size} algorithm={algorithm} />
+      <ArraySection size={size} algorithm={algorithm} />
     </>
   );
 }

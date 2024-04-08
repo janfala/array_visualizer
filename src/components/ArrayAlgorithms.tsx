@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
+import DrawArray from "./DrawArray";
 
-type ArrayProps = {
+type ArrayVisualProps = {
   size: number;
   algorithm: string;
+  delayAndNotes: Function;
+  sleep: Function;
+  isAudio: any;
+  setIsAudio: any;
 };
 
-// TODO split up into 2 components
-const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
+const ArrayAlgorithms = ({ size, algorithm, delayAndNotes, sleep, isAudio, setIsAudio }: ArrayVisualProps) => {
   const [arr, setArr] = useState<number[]>([]);
 
   // indicies to visualize whats happening
@@ -14,12 +18,6 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   const [comparing, setComparing] = useState<number | Set<number>>(-1);
 
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [isAudio, setIsAudio] = useState<boolean>(true);
-
-  const SORTING_DELAY = 25; // TODO this should be dependend on arr size -> larger array -> shorter delay
-  const AUDIO_DURATION = 0.15;
-
-  let audioCtx: any = null; // for sound
 
   useEffect(() => {
     handleNewArray();
@@ -167,7 +165,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     await quickSortHelper(arr, 0, arr.length - 1);
   }
 
-  async function quickSortHelper(array: number[], start: number, end: number) {
+  async function quickSortHelper(array: number[], start: number, end: number): Promise<void> {
     if (start >= end) {
       return;
     }
@@ -299,43 +297,14 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     setArr(genRandomValues(size));
   }
 
-  function resetCursors(): void {
-    // -1 will never shown
-    setCurBar(-1);
-    setComparing(-1);
-  }
-
   function handleSound(): void {
     isAudio ? setIsAudio(false) : setIsAudio(true);
   }
 
-  async function sleep() {
-    await new Promise((resolve) => setTimeout(resolve, SORTING_DELAY));
-  }
-
-  async function delayAndNotes(vals: number[]): Promise<void> {
-    await sleep();
-    if (!isAudio) return;
-
-    vals.forEach((val) => playNote(200 + val * 500));
-  }
-
-  // I stole this from https://www.youtube.com/watch?v=_AwSlHlpFuc
-  // It sounds worse for me, but i don't want to brek my speakers my changing these values too much
-  function playNote(freq: number): void {
-    if (audioCtx === null) {
-      audioCtx = new (AudioContext || AudioContext || window.AudioContext)();
-    }
-
-    const osc = audioCtx.createOscillator();
-    osc.frequency.value = freq;
-    osc.start();
-    osc.stop(audioCtx.currentTime + AUDIO_DURATION);
-    const node = audioCtx.createGain();
-    node.gain.value = 0.1;
-    node.gain.linearRampToValueAtTime(0, audioCtx.currentTime + AUDIO_DURATION);
-    osc.connect(node);
-    node.connect(audioCtx.destination);
+  function resetCursors(): void {
+    // -1 will never shown
+    setCurBar(-1);
+    setComparing(-1);
   }
 
   return (
@@ -357,32 +326,17 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
             </button>
           )}
           {size !== 0 && <button onClick={handleNewArray}>Generate new Array</button>}
-          <label className="switch">
-            <input type="checkbox" className="soundToggle" onChange={handleSound} defaultChecked />
-            <span>Sound</span>
-          </label>
+          {size !== 0 && (
+            <label className="switch">
+              <input type="checkbox" className="soundToggle" onChange={handleSound} defaultChecked />
+              <span>Sound</span>
+            </label>
+          )}
         </>
       )}
-      <div className="arrContainer">
-        {size !== 0 &&
-          arr.map((val, idx) => (
-            <div
-              key={idx}
-              className={
-                (typeof curBar === "number" && idx === curBar) || (curBar instanceof Set && curBar.has(idx))
-                  ? "bar cursor"
-                  : "bar normal"
-              }
-              style={
-                (typeof comparing === "number" && idx === comparing) || (comparing instanceof Set && comparing.has(idx))
-                  ? { height: `${val * 100}%`, backgroundColor: "greenyellow" }
-                  : { height: `${val * 100}%` }
-              }
-            ></div>
-          ))}
-      </div>
+      <DrawArray size={size} arr={arr} comparing={comparing} curBar={curBar} />
     </>
   );
 };
 
-export default ArrayVisual;
+export default ArrayAlgorithms;
