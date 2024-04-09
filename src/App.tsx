@@ -3,7 +3,7 @@ import ArrayVisual from "./components/ArrayVisual";
 import { useState } from "react";
 
 function App() {
-  const [size, setSize] = useState<number>(0);
+  const [size, setSize] = useState<number>(50);
   const [algorithm, setAlgorithm] = useState<string>("");
 
   function handleInputs(e: SubmitEvent | any): void {
@@ -41,7 +41,7 @@ function App() {
 
   return (
     <>
-      <UserInput handleInputs={handleInputs} />
+      <UserInput handleInputs={handleInputs} size={size} />
       <ArrayVisual size={size} algorithm={algorithm} />
     </>
   );

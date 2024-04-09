@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import LongRuntimeNotice from "./LongRunTimeNotice";
 
 type ArrayProps = {
   size: number;
@@ -15,6 +16,11 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
 
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [isAudio, setIsAudio] = useState<boolean>(true);
+
+  const [isNotice, setIsNotice] = useState<boolean>(false);
+  const [isDisplayedNotice, setIsDisplayedNotice] = useState(true);
+
+  const longAlgosForLargeSize = new Set(["bubble", "insertion", "selection"]);
 
   const SORTING_DELAY = 25; // TODO maybe this should be dependend on arr size -> larger array -> shorter delay
   const AUDIO_DURATION = 0.15;
@@ -338,6 +344,14 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     node.connect(audioCtx.destination);
   }
 
+  function handleNotice(): void {
+    if (longAlgosForLargeSize.has(algorithm)) setIsNotice(true);
+  }
+
+  function handleNoticeDisplay(): void {
+    setIsDisplayedNotice(false);
+  }
+
   return (
     <>
       {isRunning ? (
@@ -351,11 +365,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
         </>
       ) : (
         <>
-          {size !== 0 && (
-            <button onClick={async () => await handleSort().catch((err) => console.log(err.message))}>
-              Start Sorting!
-            </button>
-          )}
+          {size !== 0 && <button onClick={isNotice || size <= 10 ? handleSort : handleNotice}>Start Sorting!</button>}
           {size !== 0 && <button onClick={handleNewArray}>Generate new Array</button>}
           {size !== 0 && (
             <label className="switch">
@@ -383,6 +393,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
             ></div>
           ))}
       </div>
+      {isNotice && isDisplayedNotice && <LongRuntimeNotice handleNoticeDisplay={handleNoticeDisplay} />}
     </>
   );
 };
