@@ -345,7 +345,11 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   }
 
   function handleNotice(): void {
-    if (longAlgosForLargeSize.has(algorithm)) setIsNotice(true);
+    if (longAlgosForLargeSize.has(algorithm)) {
+      setIsNotice(true);
+    } else {
+      visualizeAlgorithm();
+    }
   }
 
   function handleNoticeDisplay(): void {
