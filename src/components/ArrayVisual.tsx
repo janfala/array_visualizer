@@ -267,6 +267,11 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
   }
 
   async function handleSort(): Promise<void> {
+    console.log("size: " + typeof size);
+    console.log("arr: " + typeof arr);
+    console.log("handleSort: " + typeof handleSort);
+    console.log("algorithm: " + typeof algorithm);
+    console.log("audioCtx: " + typeof audioCtx);
     if (isArrSorted()) {
       alert("Array is already sorted");
       return;
@@ -278,7 +283,7 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
     await playEndAnimation();
   }
 
-  async function visualizeAlgorithm(): Promise<void> {
+  async function visualizeAlgorithm(): Promise<any> {
     switch (algorithm) {
       case "quick":
         await quickSort();
@@ -295,8 +300,6 @@ const ArrayVisual = ({ size, algorithm }: ArrayProps) => {
       case "bubble":
         await bubbleSort();
         break;
-      default:
-        throw new Error(`Unknown algorithm: ${algorithm}`);
     }
   }
 
